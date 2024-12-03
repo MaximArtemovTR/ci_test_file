@@ -2,24 +2,33 @@ name: Enforce PR Squash Commit Message Format
 
 on:
   pull_request:
-    types: [edited]
+    types: [ready_for_review, edited]
 
 jobs:
   validate-pr-title:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Validate PR Title Contains AB# Pattern
+      # Step 1: Check out the repository
+      - name: Check Out Repository
+        uses: actions/checkout@v3
+
+      # Step 2: Install GitHub CLI (gh) if not pre-installed
+      - name: Install GitHub CLI
+        run: sudo apt-get install -y gh
+
+      # Step 3: Validate PR Title Contains Required Pattern
+      - name: Validate PR Title for AB# Pattern
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # Get the pull request title
+          # Get the pull request title using GitHub CLI
           PR_TITLE=$(gh pr view ${{ github.event.pull_request.number }} --json title -q '.title')
 
-          # Regex for required pattern (AB# followed by 4+ digits)
+          # Regex for AB# pattern
           REGEX_PATTERN="AB#\\d{4,}"
 
-          # Check if the title contains the required pattern
+          # Check if PR title matches the AB# pattern
           if ! [[ "$PR_TITLE" =~ $REGEX_PATTERN ]]; then
             echo "❌ Error: The squash commit title must include a string in the format 'AB#XXXX' (e.g., AB#1234)."
             exit 1
