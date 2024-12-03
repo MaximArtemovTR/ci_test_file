@@ -13,10 +13,6 @@ jobs:
       - name: Check Out Repository
         uses: actions/checkout@v3
 
-      # Step 2: Install GitHub CLI (gh) if not pre-installed
-      - name: Install GitHub CLI
-        run: sudo apt-get install -y gh
-
       # Step 3: Validate PR Title Contains Required Pattern
       - name: Validate PR Title for AB# Pattern
         env:
